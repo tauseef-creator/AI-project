@@ -88,7 +88,7 @@ def video():
     return render_template("video.html")
 
 
-model2 = load_model("AI-project/model/TSR.h5")
+model2 = load_model("./model/TSR.h5")
 
 threshold = 0.75  # PROBABLITY THRESHOLD
 font = cv2.FONT_HERSHEY_SIMPLEX
