@@ -88,19 +88,18 @@ font = cv2.FONT_HERSHEY_SIMPLEX
 
 def generate_frames():
     camera = cv2.VideoCapture(0)
-    camera.set(3, 640)
-    camera.set(4, 480)
-    camera.set(10, 180)
-    camera.set(15, -8.0)
+    camera.set(3, 640) # Set the resolution
+    camera.set(4, 480) # Set the resolution
+    camera.set(10, 180) # Brightness
+    camera.set(15, -8.0) # Exposure
+    camera.set(cv2.CAP_PROP_AUTO_EXPOSURE, 0.75) # Disable auto-exposure
+    camera.set(cv2.CAP_PROP_EXPOSURE, -3) # Manually set exposure
     while True:
         success, imgOrignal = camera.read()
         
         # PROCESS IMAGE
-        # img = np.asarray(imgOrignal)
-        # img = cv2.resize(img, (30, 30))
         img = preprocessing(imgOrignal)
         # Create a window with the WINDOW_NORMAL flag
-        # cv2.imshow("Processed Image", img)
         img = img.reshape(1, 30, 30, 3)
         cv2.putText(imgOrignal, "CLASS: " , (20, 35), font, 0.75, (0, 0, 255), 2, cv2.LINE_AA)
         cv2.putText(imgOrignal, "PROBABILITY: ", (20, 75), font, 0.75, (0, 0, 255), 2, cv2.LINE_AA)
@@ -120,7 +119,6 @@ def generate_frames():
             cv2.putText(imgOrignal, str(classIndex[0]) + " " + class_name, (120, 35), font, 0.75, (0, 0, 255), 2, cv2.LINE_AA)
             cv2.putText(imgOrignal, str(round(probabilityValue[0] * 100, 2)) + "%", (180, 75), font, 0.75, (0, 0, 255), 2, cv2.LINE_AA)
             resized_img = cv2.resize(imgOrignal, (640, 480))
-            # cv2.imshow("Result", resized_img)
             # Encode the image as jpeg
             ret, buffer = cv2.imencode('.jpg', resized_img)
 
