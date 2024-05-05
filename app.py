@@ -14,7 +14,7 @@ app = Flask(__name__)
 
 def load_labels():
     labels = {}
-    with open('./training/labels.csv', mode='r') as file:
+    with open('./Training/labels.csv', mode='r') as file:
         reader = csv.reader(file)
         # Skip the header
         next(reader)
@@ -79,6 +79,7 @@ def preprocessing(img):
 @app.route("/video")
 def video():
     return render_template("video.html")
+
 
 
 model2 = load_model("./model/TSR.h5")

@@ -21,19 +21,27 @@ input[type="file"] {
     display: none;
 }
 
-.upload-label{
+.upload-label {
     display: inline-block;
-    padding: 12px 30px;
-    background: #39D2B4;
+    padding: .375rem .75rem;
+    font-size: 1rem;
+    font-weight: 400;
+    line-height: 1.5;
     color: #fff;
-    font-size: 1em;
-    transition: all .4s;
+    text-align: center;
+    text-decoration: none;
+    vertical-align: middle;
     cursor: pointer;
+    background-color: #007bff;
+    border: 1px solid transparent;
+    border-radius: .25rem;
+    transition: color .15s ease-in-out, background-color .15s ease-in-out, border-color .15s ease-in-out, box-shadow .15s ease-in-out;
 }
 
-.upload-label:hover{
-    background: #34495E;
-    color: #39D2B4;
+.upload-label:hover {
+    color: #fff;
+    background-color: #0069d9;
+    border-color: #0062cc;
 }
 
 .loader {
@@ -48,4 +56,19 @@ input[type="file"] {
 @keyframes spin {
     0% { transform: rotate(0deg); }
     100% { transform: rotate(360deg); }
+}
+
+section {
+    margin-bottom: 2em;
+}
+
+#result {
+    text-align: center;
+    margin-top: 4em;
+    margin-left: 1rem;
+}
+
+.image-result-section {
+    display: flex;
+    justify-content: flex-start;
 }
