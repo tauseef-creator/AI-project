@@ -1,3 +1,25 @@
+.navbar{
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    background-color: #0069d9 !important;
+}
+
+body{
+    background-image: url("../images/bg.jpg");
+    background-size: cover;
+     color: #fff;
+}
+
+.navbar-brand{
+    width: 100%;
+}
+
+.heading{
+    text-align: center !important;
+   
+}
 
 .img-preview {
     width: 256px;
@@ -71,4 +93,8 @@ section {
 .image-result-section {
     display: flex;
     justify-content: flex-start;
+}
+
+#content{
+    color: #fff;  
 }

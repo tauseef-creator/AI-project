@@ -28,13 +28,17 @@ def load_labels():
 # Call the function to load labels when the application starts
 classes = load_labels()
 
+
 def image_processing(img):
-    model = load_model('./model/TSR.h5')
-    data=[]
-    image = Image.open(img).convert('RGB')
-    image = image.resize((30,30))
+    model = load_model("./model/my_model.h5")
+    data = []
+    image = Image.open(img).convert("L")  # Convert image to grayscale
+    image = image.resize((32, 32))
     data.append(np.array(image))
     X_test = np.array(data)
+    X_test = np.expand_dims(
+        X_test, axis=-1
+    )  # Add an extra dimension for the grayscale channel
 
     # Get the probabilities for each class
     probabilities = model.predict(X_test)

@@ -47,8 +47,14 @@ $(document).ready(function () {
                 $('#result').fadeIn(600);
                 $('#result').text(data);
                 console.log('Success!');
-            },
+            },  
         });
+    });
+
+    // <button type="button" class="btn btn-primary" id="btn-camera"><b>Open Camera Feed</b></button>
+    // When this button is click open a new tab url "video-feed" and load the camera feed
+    $('#btn-camera').click(function () {
+        window.open('/video_feed', '_blank');
     });
 
 });
