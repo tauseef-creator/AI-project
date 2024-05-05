@@ -72,6 +72,7 @@ def preprocessing(img):
     # Resize the image to the expected dimensions
     img = cv2.resize(img, (30, 30))
     # img = img/255
+    img = np.expand_dims(img, axis=0)
     return img
 
 
