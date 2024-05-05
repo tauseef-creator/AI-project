@@ -66,20 +66,12 @@ def upload():
     return None
 
 
-def grayscale(img):
-    img = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
-    return img
-
-
-def equalize(img):
-    img = cv2.equalizeHist(img)
-    return img
-
-
 def preprocessing(img):
-    img = grayscale(img)
-    img = equalize(img)
-    img = img / 255
+    # If the image is not in RGB format, convert it
+    img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
+    # Resize the image to the expected dimensions
+    img = cv2.resize(img, (30, 30))
+    # img = img/255
     return img
 
 
@@ -102,64 +94,44 @@ def generate_frames():
     camera.set(15, -8.0)
     while True:
         success, imgOrignal = camera.read()
-        if not success:
+        
+        # PROCESS IMAGE
+        # img = np.asarray(imgOrignal)
+        # img = cv2.resize(img, (30, 30))
+        img = preprocessing(imgOrignal)
+        # Create a window with the WINDOW_NORMAL flag
+        # cv2.imshow("Processed Image", img)
+        img = img.reshape(1, 30, 30, 3)
+        cv2.putText(imgOrignal, "CLASS: " , (20, 35), font, 0.75, (0, 0, 255), 2, cv2.LINE_AA)
+        cv2.putText(imgOrignal, "PROBABILITY: ", (20, 75), font, 0.75, (0, 0, 255), 2, cv2.LINE_AA)
+        # PREDICT IMAGE
+        # Assuming 'img' is your preprocessed image with the correct shape
+        predictions = model2.predict(img)
+
+        # Get the class index with the highest probability
+        classIndex = np.argmax(predictions, axis=1)
+
+        # Get the probability value of the predicted class
+        probabilityValue = np.amax(predictions, axis=1)
+
+        if probabilityValue > threshold:
+            # Assuming getCalssName is a function that takes a class index and returns the class name
+            class_name = classes[classIndex[0]]
+            cv2.putText(imgOrignal, str(classIndex[0]) + " " + class_name, (120, 35), font, 0.75, (0, 0, 255), 2, cv2.LINE_AA)
+            cv2.putText(imgOrignal, str(round(probabilityValue[0] * 100, 2)) + "%", (180, 75), font, 0.75, (0, 0, 255), 2, cv2.LINE_AA)
+            resized_img = cv2.resize(imgOrignal, (640, 480))
+            # cv2.imshow("Result", resized_img)
+            # Encode the image as jpeg
+            ret, buffer = cv2.imencode('.jpg', resized_img)
+
+            # Convert the buffer to bytes
+            frame = buffer.tobytes()
+
+            yield (b'--frame\r\n'
+                   b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n')
+
+        if cv2.waitKey(1) & 0xFF == ord('q'):
             break
-        else:
-            # ret, buffer = cv2.imencode('.jpg', frame)
-            # frame = buffer.tobytes()
-            # yield (b'--frame\r\n'
-            #        b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n')
-
-            # PROCESS IMAGE
-            img = np.asarray(imgOrignal)
-            img = cv2.resize(img, (32, 32))
-            img = preprocessing(img)
-            cv2.imshow("Processed Image", img)
-            img = img.reshape(1, 32, 32, 1)
-            cv2.putText(
-                imgOrignal, "CLASS: ", (20, 35), font, 0.75, (0, 0, 255), 2, cv2.LINE_AA
-            )
-            cv2.putText(
-                imgOrignal,
-                "PROBABILITY: ",
-                (20, 75),
-                font,
-                0.75,
-                (0, 0, 255),
-                2,
-                cv2.LINE_AA,
-            )
-            # PREDICT IMAGE
-            predictions = model2.predict(img)
-            classIndex = model2.predict_classes(img)
-            probabilityValue = np.amax(predictions)
-            if probabilityValue > threshold:
-                # print(getCalssName(classIndex))
-                # cv2.putText(imgOrignal,str(classIndex)+" "+str(getCalssName(classIndex)), (120, 35), font, 0.75, (0, 0, 255), 2, cv2.LINE_AA)
-                cv2.putText(
-                    imgOrignal,
-                    str(classIndex) + " " + str(classes[classIndex[0]]),
-                    (120, 35),
-                    font,
-                    0.75,
-                    (0, 0, 255),
-                    2,
-                    cv2.LINE_AA,
-                )
-                cv2.putText(
-                    imgOrignal,
-                    str(round(probabilityValue * 100, 2)) + "%",
-                    (180, 75),
-                    font,
-                    0.75,
-                    (0, 0, 255),
-                    2,
-                    cv2.LINE_AA,
-                )
-                cv2.imshow("Result", imgOrignal)
-
-            if cv2.waitKey(1) and 0xFF == ord("q"):
-                break
 
 
 @app.route("/video_feed")
