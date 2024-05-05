@@ -66,13 +66,20 @@ def upload():
     return None
 
 
+def grayscale(img):
+    img = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+    return img
+
+
+def equalize(img):
+    img = cv2.equalizeHist(img)
+    return img
+
+
 def preprocessing(img):
-    # If the image is not in RGB format, convert it
-    img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
-    # Resize the image to the expected dimensions
-    img = cv2.resize(img, (30, 30))
-    # img = img/255
-    img = np.expand_dims(img, axis=0)
+    img = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)  # Convert to grayscale
+    img = cv2.equalizeHist(img)  # Equalize the histogram
+    img = img / 255  # Normalize the image
     return img
 
 
@@ -81,8 +88,7 @@ def video():
     return render_template("video.html")
 
 
-
-model2 = load_model("./model/TSR.h5")
+model2 = load_model("./model/my_model.h5")
 
 threshold = 0.75  # PROBABLITY THRESHOLD
 font = cv2.FONT_HERSHEY_SIMPLEX
@@ -90,39 +96,35 @@ font = cv2.FONT_HERSHEY_SIMPLEX
 
 def generate_frames():
     camera = cv2.VideoCapture(0)
-    camera.set(3, 640) # Set the resolution
-    camera.set(4, 480) # Set the resolution
-    camera.set(10, 180) # Brightness
-    camera.set(15, -8.0) # Exposure
-    camera.set(cv2.CAP_PROP_AUTO_EXPOSURE, 0.75) # Disable auto-exposure
-    camera.set(cv2.CAP_PROP_EXPOSURE, -3) # Manually set exposure
+    camera.set(3, 640) # Set the resolution width
+    camera.set(4, 480) # Set the resolution height
+    camera.set(10, 180) # Set the brightness
     while True:
         success, imgOrignal = camera.read()
-        
         # PROCESS IMAGE
-        img = preprocessing(imgOrignal)
+        img = np.asarray(imgOrignal)
+        img = cv2.resize(img, (32, 32))
+        img = preprocessing(img)
+        cv2.imshow("Processed Image", img)
         # Create a window with the WINDOW_NORMAL flag
-        img = img.reshape(1, 30, 30, 3)
+        img = img.reshape(1, 32, 32, 1)
         cv2.putText(imgOrignal, "CLASS: " , (20, 35), font, 0.75, (0, 0, 255), 2, cv2.LINE_AA)
         cv2.putText(imgOrignal, "PROBABILITY: ", (20, 75), font, 0.75, (0, 0, 255), 2, cv2.LINE_AA)
         # PREDICT IMAGE
-        # Assuming 'img' is your preprocessed image with the correct shape
         predictions = model2.predict(img)
-
         # Get the class index with the highest probability
         classIndex = np.argmax(predictions, axis=1)
-
         # Get the probability value of the predicted class
-        probabilityValue = np.amax(predictions, axis=1)
+        probabilityValue = np.amax(predictions)
 
         if probabilityValue > threshold:
             # Assuming getCalssName is a function that takes a class index and returns the class name
             class_name = classes[classIndex[0]]
             cv2.putText(imgOrignal, str(classIndex[0]) + " " + class_name, (120, 35), font, 0.75, (0, 0, 255), 2, cv2.LINE_AA)
-            cv2.putText(imgOrignal, str(round(probabilityValue[0] * 100, 2)) + "%", (180, 75), font, 0.75, (0, 0, 255), 2, cv2.LINE_AA)
+            cv2.putText(imgOrignal, str(round(probabilityValue* 100, 2)) + "%", (180, 75), font, 0.75, (0, 0, 255), 2, cv2.LINE_AA)
             resized_img = cv2.resize(imgOrignal, (640, 480))
             # Encode the image as jpeg
-            ret, buffer = cv2.imencode('.jpg', resized_img)
+            _ , buffer = cv2.imencode('.jpg', resized_img)
 
             # Convert the buffer to bytes
             frame = buffer.tobytes()

@@ -19,7 +19,6 @@ cap.set(4, frameHeight)
 cap.set(10, brightness)
 # IMPORT THE TRANNIED MODEL
 model = load_model('./model/my_model.h5')
-print(model.input_shape)
 
 def grayscale(img):
     img = cv2.cvtColor(img,cv2.COLOR_BGR2GRAY)
@@ -95,7 +94,6 @@ while True:
     classIndex = np.argmax(predictions, axis=1)
     probabilityValue =np.amax(predictions)
     if probabilityValue > threshold:
-        # print(getCalssName(classIndex))
         cv2.putText(imgOrignal,str(classIndex)+" "+str(getCalssName(classIndex)), (120, 35), font, 0.75, (0, 0, 255), 2, cv2.LINE_AA)
         cv2.putText(imgOrignal, str(round(probabilityValue*100,2) )+"%", (180, 75), font, 0.75, (0, 0, 255), 2, cv2.LINE_AA)
         cv2.imshow("Result", imgOrignal)
